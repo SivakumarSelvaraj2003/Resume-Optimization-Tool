@@ -1,25 +1,40 @@
-import { useRef } from 'react';
-import html2pdf from 'html2pdf.js';
+import { useRef, useState } from 'react';
 import { saveAs } from 'file-saver';
 import HtmlToDocx from '@turbodocx/html-to-docx'; // Using the modern Vite-compatible package
 import { useResumeContext } from '../../context/ResumeContext';
 import './ResumeEditor.css';
 
 function ResumeEditor() {
+  // Pull missingSkills dynamically from your context/backend response!
   const { optimizedResume } = useResumeContext();
+// Now grab the missingSkills directly from the optimized JSON!
+const missingSkills = optimizedResume?.missingSkills || [];
   const paperRef = useRef(null);
 
-  // --- PDF DOWNLOAD LOGIC ---
+  // --- NEW: Sidebar State ---
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // (We completely deleted the hardcoded array!)
+
+  // --- NEW: Click to Copy Function ---
+  const handleCopySkill = (skill, e) => {
+    navigator.clipboard.writeText(skill);
+    const originalText = e.target.innerText;
+    e.target.innerText = "Copied! ✔";
+    e.target.style.backgroundColor = "#16a34a";
+    e.target.style.color = "white";
+    setTimeout(() => {
+      e.target.innerText = originalText;
+      e.target.style.backgroundColor = "";
+      e.target.style.color = "";
+    }, 1000);
+  };
+
+// --- REAL TEXT-BASED ATS PDF GENERATION ---
   const handleDownloadPDF = () => {
-    const element = paperRef.current;
-    const options = {
-      margin: 0,
-      filename: `${optimizedResume?.personalInfo?.name || 'Tailored'}_Resume.pdf`,
-      image: { type: 'jpeg', quality: 1 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    html2pdf().set(options).from(element).save();
+    // Triggers the browser's native print dialog
+    // Selecting "Save as PDF" creates a true ATS-readable vector text PDF
+    window.print();
   };
 // --- REAL DOCX DOWNLOAD LOGIC ---
   const handleDownloadDOCX = async () => {
@@ -145,8 +160,41 @@ function ResumeEditor() {
 
   const { personalInfo, summary, skills, experience, projects, education } = optimizedResume;
 
-  return (
+ return (
     <div className="editor-container">
+      
+      {/* --- NEW: SIDEBAR TOGGLE BUTTON --- */}
+      <button 
+        className={`sidebar-toggle-btn ${isSidebarOpen ? 'open' : ''}`} 
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        {isSidebarOpen ? '◀ Close' : '💡 Missing Skills'}
+      </button>
+
+      {/* --- NEW: THE SIDEBAR --- */}
+      <div className={`missing-skills-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <h3>JD Keyword Match</h3>
+        <p className="sidebar-instructions">Click any missing skill to copy it to your clipboard, then paste it into your resume!</p>
+        
+        {missingSkills.map((group, index) => (
+          <div key={index} className="missing-skill-group">
+            <h4>{group.category}</h4>
+            <div className="skill-badges">
+              {group.items.map((skill, sIndex) => (
+                <span 
+                  key={sIndex} 
+                  className="skill-badge" 
+                  onClick={(e) => handleCopySkill(skill, e)}
+                  title="Click to copy!"
+                >
+                  + {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="editor-actions">
         <button className="btn-download" onClick={handleDownloadPDF}>
           📥 Download PDF
@@ -158,8 +206,8 @@ function ResumeEditor() {
 
       <div className="resume-paper" ref={paperRef}>
         
-        {/* Header section */}
-        <div className="resume-header">
+        {/* Added a negative marginTop to pull the whole block up */}
+        <div className="resume-header" style={{ marginTop: '-15px' }}>
           <div className="resume-name editable" contentEditable="true" suppressContentEditableWarning>
             {personalInfo?.name || "YOUR NAME"}
           </div>
@@ -187,11 +235,50 @@ function ResumeEditor() {
             {personalInfo?.email} | {personalInfo?.phone} | {personalInfo?.location}
           </div>
           
+         {/* REPLACE IT WITH THIS CLICKABLE LINKS BLOCK */}
           {personalInfo?.links && (
-            <div className="resume-links editable" contentEditable="true" suppressContentEditableWarning style={{ fontSize: '12px', marginTop: '2px' }}>
-              {[personalInfo.links.linkedin, personalInfo.links.github, personalInfo.links.portfolio]
-                .filter(Boolean)
-                .join(" | ")}
+            <div className="resume-links" style={{ fontSize: '12px', marginTop: '2px' }}>
+              {/* LinkedIn */}
+              {personalInfo.links.linkedin && (
+                <a 
+                  href={personalInfo.links.linkedin.startsWith('http') ? personalInfo.links.linkedin : `https://${personalInfo.links.linkedin}`}
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="resume-link"
+                >
+                  {personalInfo.links.linkedin.replace(/^https?:\/\//, '')}
+                </a>
+              )}
+
+              {/* GitHub (Adds the ' | ' separator if LinkedIn also exists) */}
+              {personalInfo.links.github && (
+                <>
+                  {personalInfo.links.linkedin && ' | '}
+                  <a 
+                    href={personalInfo.links.github.startsWith('http') ? personalInfo.links.github : `https://${personalInfo.links.github}`}
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="resume-link"
+                  >
+                    {personalInfo.links.github.replace(/^https?:\/\//, '')}
+                  </a>
+                </>
+              )}
+
+              {/* Portfolio (Adds the ' | ' separator if LinkedIn or GitHub exists) */}
+              {personalInfo.links.portfolio && (
+                <>
+                  {(personalInfo.links.linkedin || personalInfo.links.github) && ' | '}
+                  <a 
+                    href={personalInfo.links.portfolio.startsWith('http') ? personalInfo.links.portfolio : `https://${personalInfo.links.portfolio}`}
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="resume-link"
+                  >
+                    {personalInfo.links.portfolio.replace(/^https?:\/\//, '')}
+                  </a>
+                </>
+              )}
             </div>
           )}
         </div>

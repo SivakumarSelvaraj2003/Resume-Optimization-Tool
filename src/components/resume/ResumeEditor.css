@@ -126,3 +126,218 @@
 .job-bullets li {
   margin-bottom: 4px;
 }
+
+/* --- TIGHTEN RESUME SPACING FOR 1 PAGE --- */
+
+/* Compress overall line height */
+.resume-paper {
+  line-height: 1.25 !important;
+  padding-bottom: 0px !important;
+  overflow: hidden !important;
+}
+
+/* Reduce space below the top header */
+.resume-header {
+  margin-bottom: 10px !important;
+}
+
+/* Reduce gap between major sections (Summary, Skills, Experience) */
+.resume-section {
+  margin-bottom: 10px !important;
+}
+
+/* Reduce gap directly under the black heading lines */
+.section-title {
+  margin-top: 8px !important;
+  margin-bottom: 6px !important;
+  padding-bottom: 4px !important;
+}
+
+/* Reduce gap between different jobs/projects */
+.job-item {
+  margin-bottom: 8px !important;
+}
+
+/* Tighten bullet points */
+.job-bullets {
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+.job-bullets li {
+  margin-bottom: 4px !important;
+}
+
+/* Tighten the skill categories */
+.skills-list div {
+  margin-bottom: 4px !important;
+}
+
+
+
+
+/* --- CLICKABLE LINK STYLES --- */
+.resume-link {
+  color: inherit; 
+  text-decoration: none; 
+  cursor: pointer;
+}
+
+.resume-link:hover {
+  text-decoration: underline;
+}
+
+@media print {
+  .resume-link {
+    color: black !important;
+    text-decoration: none !important;
+  }
+}
+
+
+/* ========================================= */
+/* --- MISSING SKILLS SIDEBAR STYLES --- */
+/* ========================================= */
+
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #f59e0b; /* Attention-grabbing amber */
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  font-weight: bold;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle-btn.open {
+  left: 300px; /* Pushes button out when sidebar opens */
+  background-color: #374151;
+}
+
+.missing-skills-sidebar {
+  position: fixed;
+  left: -300px; /* Hidden off-screen by default */
+  top: 0;
+  width: 300px;
+  height: 100vh;
+  background-color: #f8fafc;
+  border-right: 2px solid #e2e8f0;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  padding: 24px;
+  overflow-y: auto;
+  z-index: 999;
+  transition: left 0.3s ease;
+}
+
+.missing-skills-sidebar.open {
+  left: 0; /* Slides into view */
+}
+
+.missing-skills-sidebar h3 {
+  margin-top: 0;
+  color: #1e293b;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #f59e0b;
+  padding-bottom: 8px;
+}
+
+.sidebar-instructions {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.missing-skill-group {
+  margin-bottom: 20px;
+}
+
+.missing-skill-group h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.95rem;
+  color: #475569;
+  text-transform: uppercase;
+}
+
+.skill-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-badge {
+  background-color: #fff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.skill-badge:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
+
+/* --- BULLETPROOF 1-PAGE ATS PRINT STYLES --- */
+@media print {
+  @page {
+    size: letter portrait;
+    margin: 0 !important; 
+  }
+
+  /* 1. STRIP ALL LAYOUT TRAPS: 
+     This forces every single container in your app to let go of the resume. 
+     It destroys Flexbox/Grid offsets and relative positioning. */
+  * {
+    position: static !important;
+    transform: none !important;
+    contain: none !important;
+  }
+
+  /* 2. Hide everything by turning it invisible */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 3. Make ONLY the resume and its contents visible again */
+  .resume-paper,
+  .resume-paper * {
+    visibility: visible;
+  }
+
+  /* 4. ANCHOR TO PAPER: 
+     Because we stripped the layout traps in Step 1, this absolute position 
+     now anchors perfectly to the top-left corner of the literal paper. */
+  .resume-paper {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important; /* Force it to stretch across the whole page */
+    max-width: 100% !important;
+    padding: 10mm 15mm !important; /* Creates a clean, safe margin */
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Add this inside @media print */
+  .sidebar-toggle-btn,
+  .missing-skills-sidebar {
+    display: none !important;
+  }
+}

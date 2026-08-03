@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const MODEL_NAME = 'gemini-3.6-flash'; 
+const MODEL_NAME = 'gemini-3.5-flash-lite'; 
 
 /**
  * 1. Extract Master Resume into Structured JSON
@@ -107,9 +107,10 @@ export const generateTailoredResume = async (masterResumeJson, jobDescription) =
     6. Write a new professional summary (2-3 sentences) specifically targeting the JD role.
     7. PRESERVE all links, projects, and education exactly as they are in the master resume.
     8. PRESERVE the categorized structure of the skills, but you may re-order items within categories to prioritize JD keywords.
-    9. PRESERVE the nested roles/promotions structure in the experience section exactly as it appears in the master resume.
+   9. PRESERVE the nested roles/promotions structure in the experience section exactly as it appears in the master resume.
     10. EXACT MATCH HEADLINE: UPDATE the "headline" inside "personalInfo" to exactly match the target Role/Job Title found in the Job Description.
     11. Output ONLY valid JSON. No markdown wrappers.
+    12. MISSING SKILLS EXTRACTION: Compare the user's Master Resume to the Job Description. Extract the exact keywords, hard skills, and soft/process skills present in the Job Description that are MISSING from the user's resume. Place these into the "missingSkills" array.
 
    EXPECTED JSON SCHEMA:
     {
@@ -120,8 +121,18 @@ export const generateTailoredResume = async (masterResumeJson, jobDescription) =
       ],
       "experience": [ ...keep exact same as master ],
       "projects": [ ...keep exact same as master ],
-      "education": [ ...keep exact same as master ]
-    }
+      "education": [ ...keep exact same as master ],
+      "missingSkills": [
+        { 
+          "category": "Hard Skills", 
+          "items": ["List of missing technical skills, tools, or languages from the JD"] 
+        },
+        { 
+          "category": "Soft & Process Skills", 
+          "items": ["List of missing soft skills or methodologies like Agile, Collaborative, etc."] 
+        }
+      ]
+    }x  
 
     MASTER RESUME JSON:
     ${JSON.stringify(masterResumeJson)}
