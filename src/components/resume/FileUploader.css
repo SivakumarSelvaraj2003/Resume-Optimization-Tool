@@ -1,0 +1,53 @@
+.uploader-container {
+  width: 100%;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  background-color: var(--surface-color);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploader-container.drag-active {
+  border-color: var(--primary-color);
+  background-color: #eff6ff; /* Light blue tint */
+}
+
+.uploader-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-muted);
+}
+
+.uploader-container.drag-active .uploader-icon {
+  color: var(--primary-color);
+}
+
+.uploader-text {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+}
+
+.uploader-subtext {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Hide the default file input visually but keep it clickable */
+.file-input {
+  display: none;
+}
+
+.success-message {
+  color: var(--success-color);
+  font-weight: 600;
+  margin-top: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
